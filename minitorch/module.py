@@ -22,37 +22,39 @@ class Module:
     def train(self):
         "Set the mode of this module and all descendent modules to `train`."
         self.training = True
-        for module in self._modules:
+        for name, module in self._modules.items():
             module.train()
 
 
     def eval(self):
         "Set the mode of this module and all descendent modules to `eval`."
         self.training = False
-        for module in self._modules:
+        for name, module in self._modules.items():
             module.eval()
 
     def named_parameters(self):
         """
         Collect all the parameters of this module and its descendents.
 
-
         Returns:
             list of pairs: Contains the name and :class:`Parameter` of each ancestor parameter.
         """
-        params = []
-        for key in self._parameters.keys():
-            value = self._parameters[key]
-            params.append((key,Parameter(key, value)))
-        return params
+        named_params = []
+
+        for module_name, module in self._modules.items():
+            for param_name, param in module.named_parameters():
+                named_params.append((module_name+"."+param_name, param))
+
+        for key,value in self._parameters.items():
+            named_params.append((key, value))
+        return named_params
+
+
 
     def parameters(self):
         "Enumerate over all the parameters of this module and its descendents."
-        params = []
-        for key in self._parameters.keys():
-            value = self._parameters[key]
-            params.append(Parameter(value, name=key))
-        return params
+        return self.named_parameters().values()
+
 
     def add_parameter(self, k, v):
         """
