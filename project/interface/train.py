@@ -80,6 +80,7 @@ def render_train_interface(
 
     st.markdown("### Initial setting")
     st.write(plot())
+    max_epochs = 5
 
     if hasattr(train, "train"):
         st.markdown("### Hyperparameters")
